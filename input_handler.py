@@ -6,9 +6,7 @@ MOVE_KEYS = {
 	tcod.event.K_LEFT: (-1,0),
 	tcod.event.K_RIGHT: (1,0),
 	tcod.event.K_UP: (0,-1),
-	tcod.event.K_DOWN: (0,1),
-	
-	#aswd
+	tcod.event.K_DOWN: (0,1)
 }
 
 class EventHandler(tcod.event.EventDispatch[Action]):

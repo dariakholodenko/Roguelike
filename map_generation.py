@@ -5,6 +5,7 @@ import numpy as np
 from game_map import GameMap
 import tile_types
 from entity import Entity, Enemy
+from entity_factory import entity_factory
 
 """Here's a map generation occures"""
 
@@ -108,9 +109,9 @@ def make_tunnel(tiles: np.ndarray, room1: Room, room2: Room) -> None:
 			tiles[x, y] = tile_types.FLOOR
 
 def place_player(room: Room, player: Entity) -> None:
-	player.x, player.y = room.center
+	player.position = room.center
 			
-def place_entities(room: Room, entities: list[Entity]) -> None:
+def generate_entities(room: Room, entities: list[Entity]) -> None:
 	enemies_num = random.randint(0,2)
 	enemies_in_room = []
 	i = 0
@@ -122,7 +123,8 @@ def place_entities(room: Room, entities: list[Entity]) -> None:
 		if any(entity.position == (enemy_x, enemy_y) for entity in enemies_in_room):
 			continue
 		else:
-			new_enemy = Enemy(enemy_x, enemy_y, name = str(i))
+			new_enemy = entity_factory("orc")
+			new_enemy.position = (enemy_x, enemy_y)
 			enemies_in_room.append(new_enemy)
 			entities.append(new_enemy)
 			i += 1
@@ -152,7 +154,7 @@ def generate_map(
 		if i == 0:
 			place_player(rooms[i], player)
 		else:
-			place_entities(rooms[i], game_map.entities)
+			generate_entities(rooms[i], game_map.entities)
 			
 		add_room_to_map(game_map.tiles, rooms[i])
 		

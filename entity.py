@@ -24,6 +24,10 @@ class Entity:
 	def position(self) -> tuple[int, int]:
 		return (self.x, self.y)
 	
+	@position.setter
+	def position(self, pos: tuple[int, int]):
+		(self.x, self.y) = pos
+	
 	def move(self, dx: int, dy: int) -> None:
 		self.x += dx
 		self.y += dy
@@ -49,7 +53,7 @@ class Enemy(Entity):
 		self.attacking = True
 		
 	def kill_entity(self) -> None:
-		print(self.char, " has been killed")
+		print(self.name, "has been killed")
 		self.dead = True
 		self.char = "%"
 		self.color = colors.RED
