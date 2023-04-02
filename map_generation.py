@@ -99,19 +99,17 @@ def make_tunnel(tiles: np.ndarray, room1: Room, room2: Room) -> None:
 			corner_x, corner_y = room1.center_x, room2.center_y #fron below
 		
 		for x, y in tcod.los.bresenham(room1.center, (corner_x, corner_y)).tolist():
-			if tiles[x, y] != tile_types.WALL:
-				continue
-			tiles[x, y] = tile_types.FLOOR
+			if tiles[x, y] == tile_types.WALL:
+				tiles[x, y] = tile_types.FLOOR
 			
 		for x, y in tcod.los.bresenham((corner_x, corner_y), room2.center).tolist():
-			if tiles[x, y] != tile_types.WALL:
-				continue
-			tiles[x, y] = tile_types.FLOOR
+			if tiles[x, y] == tile_types.WALL:
+				tiles[x, y] = tile_types.FLOOR
 
 def place_player(room: Room, player: Entity) -> None:
 	player.position = room.center
 			
-def generate_entities(room: Room, entities: list[Entity]) -> None:
+def generate_entities(game_map: GameMap, room: Room, entities: list[Entity]) -> None:
 	enemies_num = random.randint(0,2)
 	enemies_in_room = []
 	i = 0
@@ -123,10 +121,10 @@ def generate_entities(room: Room, entities: list[Entity]) -> None:
 		if any(entity.position == (enemy_x, enemy_y) for entity in enemies_in_room):
 			continue
 		else:
-			new_enemy = entity_factory("orc")
+			new_enemy = entity_factory("goblin")
 			new_enemy.position = (enemy_x, enemy_y)
 			enemies_in_room.append(new_enemy)
-			entities.append(new_enemy)
+			game_map.add_entity(new_enemy)
 			i += 1
 	
 #Create a game map and add rooms in it
@@ -154,7 +152,7 @@ def generate_map(
 		if i == 0:
 			place_player(rooms[i], player)
 		else:
-			generate_entities(rooms[i], game_map.entities)
+			generate_entities(game_map, rooms[i], game_map.entities)
 			
 		add_room_to_map(game_map.tiles, rooms[i])
 		

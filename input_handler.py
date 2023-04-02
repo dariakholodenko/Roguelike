@@ -1,6 +1,6 @@
 import tcod.event
 
-from actions import Action, ExitAction, MovementAction
+from actions import Action, ExitAction, MovementAction, DirectionAction
 
 MOVE_KEYS = {
 	tcod.event.K_LEFT: (-1,0),
@@ -18,7 +18,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 	def ev_keydown(self, event: tcod.event.KeyDown):
 		key = event.sym
 		if key in MOVE_KEYS:
-			action = MovementAction(*MOVE_KEYS[key])
+			action = DirectionAction(*MOVE_KEYS[key])
 		else:
 			action = None
 		return action 

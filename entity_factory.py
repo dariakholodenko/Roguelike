@@ -12,10 +12,10 @@ entities_types = {
 				defense = 1
 			),
 			
-		"orc": Enemy(
-				char = "o", 
+		"goblin": Enemy(
+				char = "g", 
 				color = colors.GREEN, 
-				name = "orc", 
+				name = "goblin", 
 				hp = 5, 
 				damage = 2, 
 				defense = 0

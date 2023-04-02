@@ -5,7 +5,7 @@ from tcod.context import Context
 
 from input_handler import EventHandler
 from entity import Entity, Enemy
-from actions import ExitAction, MovementAction
+from actions import ExitAction, MovementAction, DirectionAction
 
 from game_map import GameMap
 
@@ -22,26 +22,28 @@ class Engine:
 		
 	def handle_events(self, events: Iterable[Any]) -> None:
 		for event in events:
-				action = self.event_handler.dispatch(event)
-				
-				if action is None:
-					continue
+			action = self.event_handler.dispatch(event)
+			
+			if action is None:
+				continue
+			
+			"""To refactor:"""	
+			if isinstance(action, DirectionAction):
+				if self.player.isAlive == True:
+					entity = self.game_map.if_actor_entity_at(
+							self.player.x + action.dx, 
+							self.player.y + action.dy
+						)
 					
-				if isinstance(action, MovementAction):
-					if self.player.dead == False:
-						entity = self.game_map.if_actor_entity_at(self.player.x + action.dx, self.player.y + action.dy)
+					if isinstance(entity, Enemy):
+						action.perform(self.player, entity, self.game_map)
 						
-						if isinstance(entity, Enemy):
-							"""To refactor:"""
-							self.player.take_damage(entity)
-							entity.take_damage(self.player)
-							
-						else:
-							if self.game_map.tiles[self.player.x + action.dx][self.player.y + action.dy].walkable:
-								self.player.move(dx = action.dx, dy = action.dy)	
-				
-				elif isinstance(action, ExitAction):
-					raise SystemExit()
+					else:
+						if self.game_map.tiles[self.player.x + action.dx][self.player.y + action.dy].walkable:
+							action.perform(self.player)
+			
+			elif isinstance(action, ExitAction):
+				action.perform()
 					
 	def render(self, console: Console, context: Context) -> None:
 		self.game_map.render(console)
