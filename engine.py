@@ -4,9 +4,9 @@ from tcod.console import Console
 from tcod.context import Context
 
 from input_handler import EventHandler
-from entity import Entity, Enemy
+from entity import Entity
 from actions import ExitAction, MovementAction, DirectionAction
-
+from gui import render_health_bar
 from game_map import GameMap
 
 """
@@ -26,27 +26,15 @@ class Engine:
 			
 			if action is None:
 				continue
-			
-			"""To refactor:"""	
-			if isinstance(action, DirectionAction):
-				if self.player.isAlive == True:
-					entity = self.game_map.if_actor_entity_at(
-							self.player.x + action.dx, 
-							self.player.y + action.dy
-						)
-					
-					if isinstance(entity, Enemy):
-						action.perform(self.player, entity, self.game_map)
-						
-					else:
-						if self.game_map.tiles[self.player.x + action.dx][self.player.y + action.dy].walkable:
-							action.perform(self.player)
-			
-			elif isinstance(action, ExitAction):
+
+			if isinstance(action, ExitAction):
 				action.perform()
+				
+			else: action.perform(self.player, self.game_map)
 					
 	def render(self, console: Console, context: Context) -> None:
 		self.game_map.render(console)
-			
+		
+		render_health_bar(console, 20, self.player.warrior.max_hp, self.player.warrior.hp)
 		context.present(console)
 		console.clear()

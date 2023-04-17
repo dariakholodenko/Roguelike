@@ -4,7 +4,7 @@ import numpy as np
 
 from game_map import GameMap
 import tile_types
-from entity import Entity, Enemy
+from entity import Entity, Actor
 from entity_factory import entity_factory
 
 """Here's a map generation occures"""
@@ -109,22 +109,22 @@ def make_tunnel(tiles: np.ndarray, room1: Room, room2: Room) -> None:
 def place_player(room: Room, player: Entity) -> None:
 	player.position = room.center
 			
-def generate_entities(game_map: GameMap, room: Room, entities: list[Entity]) -> None:
-	enemies_num = random.randint(0,2)
-	enemies_in_room = []
+def generate_entities(game_map: GameMap, room: Room, entity_type: str, entities: list[Entity]) -> None:
+	entities_num = random.randint(0,2)
+	entities_in_room = []
 	i = 0
 	
-	while i < enemies_num:
-		enemy_x = random.randint(room.x_left+2, room.x_right-2)
-		enemy_y = random.randint(room.y_upper+2, room.y_lower-2)
+	while i < entities_num:
+		entity_x = random.randint(room.x_left+2, room.x_right-2)
+		entity_y = random.randint(room.y_upper+2, room.y_lower-2)
 		
-		if any(entity.position == (enemy_x, enemy_y) for entity in enemies_in_room):
+		if any(entity.position == (entity_x, entity_y) for entity in entities_in_room):
 			continue
 		else:
-			new_enemy = entity_factory("goblin")
-			new_enemy.position = (enemy_x, enemy_y)
-			enemies_in_room.append(new_enemy)
-			game_map.add_entity(new_enemy)
+			new_entity = entity_factory(entity_type)
+			new_entity.position = (entity_x, entity_y)
+			entities_in_room.append(new_entity)
+			game_map.add_entity(new_entity)
 			i += 1
 	
 #Create a game map and add rooms in it
@@ -152,7 +152,8 @@ def generate_map(
 		if i == 0:
 			place_player(rooms[i], player)
 		else:
-			generate_entities(game_map, rooms[i], game_map.entities)
+			generate_entities(game_map, rooms[i], "goblin", game_map.entities)
+			generate_entities(game_map, rooms[i], "healing potion", game_map.entities)
 			
 		add_room_to_map(game_map.tiles, rooms[i])
 		

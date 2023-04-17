@@ -1,8 +1,10 @@
-from entity import Entity
+from typing import Optional
+from entity import *
 from game_map import GameMap
 
 class Action:
-	pass
+	def perform(self):
+		pass
 	
 class ExitAction(Action):
 	def __init__(self):
@@ -22,18 +24,15 @@ class MovementAction(Action):
 		entity.move(self.dx, self.dy)
 		
 class AttackAction(Action):
-	def __init__(self, dx: int, dy: int):
+	def __init__(self):
 		super().__init__()
+			
+	def perform(self, player: Entity, entity: Entity, game_map: GameMap):
+		"""both attack and damage occur"""
+		player.attack(entity)
 		
-		self.dx = dx
-		self.dy = dy
-	
-	def perform(self, entity1: Entity, entity2: Entity, game_map: GameMap):
-		entity1.take_damage(entity2)
-		entity2.take_damage(entity1)
-		
-		if(entity1.isAlive == False or entity2.isAlive == False):
-			game_map.update_render_order()
+		if(entity.is_alive == False): 
+			game_map.kill_entity(entity)
 
 class DirectionAction(Action):
 	def __init__(self, dx: int, dy: int):
@@ -42,13 +41,32 @@ class DirectionAction(Action):
 		self.dx = dx
 		self.dy = dy
 	
-	def perform(self, entity1: Entity, entity2: Entity = None, game_map: GameMap = None):
-		if isinstance(entity2, Entity):
-			return AttackAction(self.dx, self.dy).perform(
-														entity1, 
-														entity2, 
-														game_map
-													)
+	def perform(self, player: Entity, game_map: GameMap) -> Optional[Action]:
+		if player.is_alive == True:
+			(dest_x, dest_y) = (player.x + self.dx, player.y + self.dy)
+			
+			entity = game_map.if_entity_at(dest_x, dest_y)
+			
+			if isinstance(entity, Actor) and entity.is_alive == True:
+				return AttackAction().perform(player, entity, game_map)
+			
+			if isinstance(entity, Potion):
+				return PickupAction().perform(player, entity, game_map)
+			
+			elif game_map.tiles[dest_x][dest_y].walkable:
+					return MovementAction(self.dx, self.dy).perform(player)
 		
-		else:
-			return MovementAction(self.dx, self.dy).perform(entity1)
+		else: 
+			return
+
+class PickupAction(Action):
+	def __init__(self):
+		super().__init__()
+	
+	def perform(self, player: Entity, entity: Entity, game_map: GameMap):
+		player.add_to_inventory(entity)
+		game_map.remove_entity(entity)
+
+class OpenInventoryAction(Action):
+	def perform(self, player: Entity, game_map: GameMap = None):
+		print("Inventory opened")
